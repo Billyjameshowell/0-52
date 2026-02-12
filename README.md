@@ -1,36 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 0/52
 
-## Getting Started
+**One photo per week. 52 weeks. Your visual year.**
 
-First, run the development server:
+A minimalist photo journal app where you capture one moment each week. No likes, no comments, no noise — just your year in 52 photos.
+
+🌐 **Live:** https://oneper.fly.dev
+
+## Features
+
+- 📸 **Weekly uploads** — One photo slot per week (Mon-Sun)
+- 🔄 **Grace period** — Swap your photo until Monday 12pm ET, then it's saved forever
+- 🖼️ **16:9 landscape** — All photos auto-cropped for a clean, consistent grid
+- 📊 **Progress tracking** — See your completion (X/52) and current streak
+- 📤 **Share & Export** — Copy profile link or download your grid as PNG
+- 📅 **Year selector** — Browse your history by year
+- 🔥 **Streaks** — Track consecutive weeks of uploads
+
+## Tech Stack
+
+- **Framework:** Next.js 16 (App Router)
+- **Styling:** Tailwind CSS
+- **Hosting:** Fly.io
+- **Storage:** localStorage (dev) → Postgres + Tigris (planned)
+- **Auth:** Dev-mode cookies → Resend magic links (planned)
+
+## Development
 
 ```bash
+# Install dependencies
+npm install
+
+# Run dev server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# Build for production
+npm run build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Deploy
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# Deploy to Fly.io
+flyctl deploy --remote-only
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Environment Variables
 
-## Learn More
+| Variable | Description |
+|----------|-------------|
+| `NEXT_PUBLIC_ANY_WEEK_PICK` | Set to `1` to enable uploading to any week (testing) |
+| `UPSTASH_REDIS_REST_URL` | Upstash Redis URL for view tracking (optional) |
+| `UPSTASH_REDIS_REST_TOKEN` | Upstash Redis token (optional) |
 
-To learn more about Next.js, take a look at the following resources:
+## Roadmap
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- [ ] Resend magic link authentication
+- [ ] Postgres + Tigris for persistent storage
+- [ ] Photo view counters (Upstash Redis)
+- [ ] PWA with offline support
+- [ ] Push notifications for weekly reminders
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## License
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT
