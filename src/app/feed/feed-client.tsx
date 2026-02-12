@@ -2,20 +2,24 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { getGlobalFeed } from "@/lib/clientStore";
-import type { WeeklyPost } from "@/lib/types";
+import { fetchGlobalFeed } from "@/lib/apiStore";
+import { type WeeklyPost, getImageSrc } from "@/lib/types";
 import { weekLabel } from "@/lib/weeks";
 
 function Card({ post }: { post: WeeklyPost }) {
+  const imgSrc = getImageSrc(post);
+  
   return (
     <article className="overflow-hidden rounded-xl border border-zinc-200 bg-white">
       <div className="aspect-video w-full bg-zinc-100">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={post.imageDataUrl}
-          alt={`@${post.handle} week ${post.week}`}
-          className="h-full w-full object-cover"
-        />
+        {imgSrc && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={imgSrc}
+            alt={`@${post.handle} week ${post.week}`}
+            className="h-full w-full object-cover"
+          />
+        )}
       </div>
       <div className="flex items-center justify-between px-4 py-3">
         <div className="text-sm">
@@ -35,17 +39,29 @@ function Card({ post }: { post: WeeklyPost }) {
 
 export default function FeedClient() {
   const [posts, setPosts] = useState<WeeklyPost[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setPosts(getGlobalFeed());
-    const onStorage = () => setPosts(getGlobalFeed());
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
+    const loadFeed = async () => {
+      try {
+        const feedPosts = await fetchGlobalFeed();
+        setPosts(feedPosts);
+      } catch (e) {
+        console.error("Failed to load feed:", e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadFeed();
   }, []);
 
-  const empty = useMemo(() => posts.length === 0, [posts.length]);
+  if (loading) {
+    return (
+      <div className="text-sm text-zinc-500">Loading...</div>
+    );
+  }
 
-  if (empty) {
+  if (posts.length === 0) {
     return (
       <div className="rounded-xl border border-dashed border-zinc-300 bg-white p-6 text-sm text-zinc-600">
         No posts yet. Go to your profile and upload a week.

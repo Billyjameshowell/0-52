@@ -1,6 +1,6 @@
 "use client";
 
-import type { WeeklyPost } from "@/lib/types";
+import { type WeeklyPost, getImageSrc } from "@/lib/types";
 import { WEEKS_PER_YEAR, weekLabel } from "@/lib/weeks";
 
 async function loadImage(src: string): Promise<HTMLImageElement> {
@@ -65,9 +65,10 @@ export async function exportProfileGridPng(opts: {
     ctx.fillRect(x, y, tileW, tileH);
 
     const post = byWeek.get(week);
-    if (post?.imageDataUrl) {
+    const imgSrc = post ? getImageSrc(post) : undefined;
+    if (imgSrc) {
       try {
-        const img = await loadImage(post.imageDataUrl);
+        const img = await loadImage(imgSrc);
         // Cover fill
         const scale = Math.max(tileW / img.width, tileH / img.height);
         const dw = img.width * scale;
@@ -93,7 +94,7 @@ export async function exportProfileGridPng(opts: {
     ctx.strokeRect(x, y, tileW, tileH);
 
     // Week label for empty tiles
-    if (!post?.imageDataUrl) {
+    if (!imgSrc) {
       ctx.fillStyle = "#a1a1aa";
       ctx.font = "600 12px system-ui, -apple-system, Segoe UI, Roboto";
       const label = weekLabel(week);

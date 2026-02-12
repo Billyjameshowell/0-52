@@ -4,9 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { WEEKS_PER_YEAR, weekLabel } from "@/lib/weeks";
 import { activeWeekEt } from "@/lib/weekTime";
-import type { WeeklyPost } from "@/lib/types";
-import { getUserPosts, getUserYears, upsertWeeklyPost } from "@/lib/clientStore";
-import { fileToLandscapeDataUrl } from "@/lib/imageCrop";
+import { type WeeklyPost, getImageSrc } from "@/lib/types";
+import { fetchUserPosts, uploadPost } from "@/lib/apiStore";
 import { exportProfileGridPng } from "@/lib/exportGrid";
 import { calculateStreak, calculateCompletion } from "@/lib/stats";
 import PhotoLightbox from "@/components/PhotoLightbox";
@@ -24,10 +23,12 @@ function Tile({
   onPick: (week: number) => void;
   onView: (post: WeeklyPost) => void;
 }) {
+  const imgSrc = post ? getImageSrc(post) : undefined;
+  
   const handleClick = () => {
-    if (post?.imageDataUrl) {
+    if (imgSrc) {
       // If there's an image, open lightbox (for anyone)
-      onView(post);
+      onView(post!);
     } else if (editable) {
       // If empty and editable, open file picker
       onPick(week);
@@ -39,12 +40,12 @@ function Tile({
       type="button"
       onClick={handleClick}
       className="group relative aspect-video w-full overflow-hidden rounded-md border border-zinc-300 bg-white text-left"
-      title={post?.imageDataUrl ? `View week ${weekLabel(week)}` : editable ? `Upload week ${weekLabel(week)}` : `Week ${weekLabel(week)}`}
+      title={imgSrc ? `View week ${weekLabel(week)}` : editable ? `Upload week ${weekLabel(week)}` : `Week ${weekLabel(week)}`}
     >
-      {post?.imageDataUrl ? (
+      {imgSrc ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={post.imageDataUrl}
+          src={imgSrc}
           alt={`Week ${weekLabel(week)}`}
           className="h-full w-full object-cover transition-transform group-hover:scale-[1.02]"
         />
@@ -55,7 +56,7 @@ function Tile({
           </span>
         </div>
       )}
-      {editable && !post?.imageDataUrl && (
+      {editable && !imgSrc && (
         <div className="pointer-events-none absolute inset-0 hidden items-end justify-end p-1 group-hover:flex">
           <div className="rounded bg-black/70 px-1.5 py-0.5 text-[10px] text-white">
             Upload
@@ -95,18 +96,23 @@ export default function ProfileClient({
 
   // Load posts and available years
   useEffect(() => {
-    const loadData = () => {
-      const years = getUserYears(handle);
-      // Always include current year
-      if (!years.includes(currentYear)) {
-        years.unshift(currentYear);
+    const loadData = async () => {
+      try {
+        const { posts: fetchedPosts, years } = await fetchUserPosts(handle, selectedYear);
+        // Always include current year
+        if (!years.includes(currentYear)) {
+          years.unshift(currentYear);
+        }
+        setAvailableYears(years.sort((a, b) => b - a));
+        setPosts(fetchedPosts);
+      } catch (e) {
+        console.error("Failed to load posts:", e);
       }
-      setAvailableYears(years.sort((a, b) => b - a));
-      setPosts(getUserPosts(handle, selectedYear));
     };
     loadData();
-    window.addEventListener("storage", loadData);
-    return () => window.removeEventListener("storage", loadData);
+    // Also listen for storage events (for localStorage fallback)
+    window.addEventListener("storage", () => loadData());
+    return () => window.removeEventListener("storage", () => loadData());
   }, [handle, selectedYear, currentYear]);
 
   const byWeek = useMemo(() => {
@@ -144,9 +150,17 @@ export default function ProfileClient({
     if (!file || pickWeek == null) return;
     setBusy(true);
     try {
-      const dataUrl = await fileToLandscapeDataUrl(file, 16 / 9);
-      upsertWeeklyPost({ handle, year: selectedYear, week: pickWeek, imageDataUrl: dataUrl });
-      setPosts(getUserPosts(handle, selectedYear));
+      await uploadPost({
+        year: selectedYear,
+        week: pickWeek,
+        imageFile: file,
+      });
+      // Reload posts after upload
+      const { posts: updatedPosts } = await fetchUserPosts(handle, selectedYear);
+      setPosts(updatedPosts);
+    } catch (e) {
+      console.error("Upload failed:", e);
+      alert("Upload failed. Please try again.");
     } finally {
       setBusy(false);
       setPickWeek(null);

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useCallback } from "react";
 import { weekLabel, getWeekDateRange, formatDateRange } from "@/lib/weeks";
-import type { WeeklyPost } from "@/lib/types";
+import { type WeeklyPost, getImageSrc } from "@/lib/types";
 
 interface PhotoLightboxProps {
   post: WeeklyPost;
@@ -108,7 +108,7 @@ export default function PhotoLightbox({ post, year, onClose }: PhotoLightboxProp
         <div className="relative max-h-[80vh] max-w-[95vw] overflow-hidden rounded-lg">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={post.imageDataUrl}
+            src={getImageSrc(post)}
             alt={`Week ${weekLabel(post.week)}`}
             className="max-h-[80vh] max-w-[95vw] object-contain"
           />
