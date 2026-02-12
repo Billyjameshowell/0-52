@@ -6,6 +6,8 @@ import { WEEKS_PER_YEAR, weekLabel } from "@/lib/weeks";
 async function loadImage(src: string): Promise<HTMLImageElement> {
   return await new Promise((resolve, reject) => {
     const img = new Image();
+    // Enable CORS for remote images (Tigris URLs)
+    img.crossOrigin = "anonymous";
     img.onload = () => resolve(img);
     img.onerror = reject;
     img.src = src;
