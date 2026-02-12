@@ -8,6 +8,7 @@ export type WeeklyPost = {
   caption?: string;
   createdAt: string; // ISO
   updatedAt: string; // ISO
+  userProgress?: number; // posts count for current year (feed only)
 };
 
 // Helper to get the displayable image source

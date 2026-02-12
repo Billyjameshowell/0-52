@@ -191,10 +191,18 @@ export default function ProfileClient({
               </select>
             )}
           </div>
-          <div className="mt-1 flex items-center gap-3 text-xs text-zinc-500">
-            <span title="Photos uploaded this year">{posts.length}/52 filled</span>
+          <div className="mt-2 flex items-center gap-3">
+            <div className="flex items-center gap-2" title="Photos uploaded this year">
+              <div className="h-1.5 w-24 rounded-full bg-zinc-200 overflow-hidden">
+                <div
+                  className="h-full bg-zinc-900 rounded-full transition-all"
+                  style={{ width: `${Math.min(100, (posts.length / 52) * 100)}%` }}
+                />
+              </div>
+              <span className="text-xs text-zinc-500">{posts.length}/52</span>
+            </div>
             {streak > 0 && selectedYear === currentYear && (
-              <span title="Current weekly streak" className="flex items-center gap-1">
+              <span title="Current weekly streak" className="flex items-center gap-1 text-xs text-zinc-500">
                 <span className="text-amber-500">🔥</span> {streak} week{streak !== 1 ? 's' : ''}
               </span>
             )}
