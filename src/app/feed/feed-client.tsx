@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { fetchGlobalFeed } from "@/lib/apiStore";
 import { type WeeklyPost, getImageSrc } from "@/lib/types";
-import { weekLabel } from "@/lib/weeks";
 
 function ProgressBar({ count, total = 52 }: { count: number; total?: number }) {
   const pct = Math.min(100, (count / total) * 100);
@@ -37,19 +36,15 @@ function Card({ post }: { post: WeeklyPost }) {
         )}
       </div>
       <div className="flex items-center justify-between px-4 py-3">
-        <div className="flex items-center gap-2 text-sm">
+        <div className="flex items-center gap-3 text-sm">
           <Link className="font-medium hover:underline" href={`/u/${post.handle}`}>
             @{post.handle}
           </Link>
-          <span className="text-zinc-400">·</span>
-          <span className="text-zinc-500">wk {weekLabel(post.week)}</span>
-        </div>
-        <div className="flex items-center gap-3">
           <ProgressBar count={post.userProgress ?? 0} />
-          <time className="text-xs text-zinc-400">
-            {new Date(post.updatedAt).toLocaleDateString()}
-          </time>
         </div>
+        <time className="text-xs text-zinc-400">
+          {new Date(post.updatedAt).toLocaleDateString()}
+        </time>
       </div>
     </article>
   );
