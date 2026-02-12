@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+:root {
+  --background: #fafafa;
+  --foreground: #0a0a0a;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* Force light mode for now - no dark mode overrides */
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Global contrast fixes */
+header {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  color: #0a0a0a !important;
+}
+
+header a,
+header button,
+header span {
+  color: #0a0a0a !important;
+}
+
+header button:hover,
+header a:hover {
+  background-color: #f4f4f5 !important;
+}
+
+/* PRIMARY BUTTONS: black bg, white text */
+.btn-primary,
+button.bg-black,
+.bg-black {
+  background-color: #18181b !important;
+  color: #ffffff !important;
+}
+
+.btn-primary:hover,
+button.bg-black:hover,
+.bg-black:hover {
+  background-color: #27272a !important;
+}
+
+/* SECONDARY BUTTONS: white bg, black border, black text */
+.btn-secondary,
+button.border-zinc-300,
+.border-zinc-300 {
+  background-color: #ffffff !important;
+  border-color: #18181b !important;
+  color: #18181b !important;
+}
+
+.btn-secondary:hover,
+button.border-zinc-300:hover,
+.border-zinc-300:hover {
+  background-color: #f4f4f5 !important;
+}
+
+/* INPUTS: white bg, black border, black text */
+input,
+textarea,
+select {
+  background-color: #ffffff !important;
+  border-color: #18181b !important;
+  color: #18181b !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #71717a !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: #18181b !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(24, 24, 27, 0.1) !important;
+}
