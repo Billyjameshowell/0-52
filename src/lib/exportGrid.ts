@@ -4,10 +4,26 @@ import { type WeeklyPost, getImageSrc } from "@/lib/types";
 import { WEEKS_PER_YEAR, weekLabel } from "@/lib/weeks";
 
 async function loadImage(src: string): Promise<HTMLImageElement> {
+  // For remote URLs, fetch as blob and convert to data URL to avoid CORS canvas tainting
+  if (src.startsWith("http")) {
+    try {
+      const response = await fetch(src);
+      const blob = await response.blob();
+      const dataUrl = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(blob);
+      });
+      return loadImage(dataUrl); // Recurse with data URL
+    } catch (e) {
+      console.error("Failed to fetch image:", e);
+      throw e;
+    }
+  }
+  
+  // For data URLs, load directly
   return await new Promise((resolve, reject) => {
     const img = new Image();
-    // Enable CORS for remote images (Tigris URLs)
-    img.crossOrigin = "anonymous";
     img.onload = () => resolve(img);
     img.onerror = reject;
     img.src = src;
