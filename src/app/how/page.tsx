@@ -16,7 +16,7 @@ export default function HowPage() {
         A week runs from Monday through Sunday, Eastern time. You can replace that week&apos;s photo until Monday at noon. After noon, the week stays as it is.
       </p>
       <p>
-        Every photo is center-cropped to a wide 16:9 frame, so the year lines up as one grid.
+        A portrait photo is turned 90° clockwise. Every photo is then center-cropped to a wide 16:9 frame, so the year lines up as one grid.
       </p>
       <p>
         Your profile is those 52 weeks. You can copy a link to it, or download the grid as an image.

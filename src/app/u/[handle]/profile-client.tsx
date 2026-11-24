@@ -160,7 +160,7 @@ export default function ProfileClient({
     if (!file || pickWeek == null) return;
     setBusy(true);
     try {
-      await uploadPost({
+      const { rotated } = await uploadPost({
         year: selectedYear,
         week: pickWeek,
         imageFile: file,
@@ -174,7 +174,13 @@ export default function ProfileClient({
         years: nextYears.sort((a, b) => b - a),
         error: false,
       });
-      toast.success("Photo saved.");
+      if (rotated) {
+        toast.warning(
+          "This photo was portrait, so it was turned 90° clockwise to fit the grid.",
+        );
+      } else {
+        toast.success("Photo saved.");
+      }
     } catch (error) {
       console.error("Upload failed:", error);
       toast.error(error instanceof Error ? error.message : "The photo could not be saved.");
@@ -269,8 +275,8 @@ export default function ProfileClient({
       {canEdit && isCurrentYear && (
         <p className="text-sm text-muted-foreground">
           {anyWeekMode
-            ? "Any week can take a photo right now. This is only for trying the grid."
-            : `Photos are center-cropped to a wide frame. This week is ${weekLabel(activeWeek)}, and you can replace the photo until Monday at noon Eastern time.`}
+            ? "A portrait photo is turned 90° clockwise, then every photo is center-cropped to a wide frame. Any week can take a photo right now. This is only for trying the grid."
+            : `A portrait photo is turned 90° clockwise, then every photo is center-cropped to a wide frame. This week is ${weekLabel(activeWeek)}, and you can replace the photo until Monday at noon Eastern time.`}
         </p>
       )}
 

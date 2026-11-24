@@ -2,14 +2,17 @@
 
 import type { WeeklyPost } from "@/lib/types";
 
-async function imageForUpload(file: File): Promise<File> {
+async function imageForUpload(file: File): Promise<{ file: File; rotated: boolean }> {
   try {
     const { fileToLandscapeBlob } = await import("./imageCrop");
-    const blob = await fileToLandscapeBlob(file);
-    return new File([blob], "week.jpg", { type: "image/jpeg" });
+    const prepared = await fileToLandscapeBlob(file);
+    return {
+      file: new File([prepared.blob], "week.jpg", { type: "image/jpeg" }),
+      rotated: prepared.rotated,
+    };
   } catch (error) {
-    console.error("Could not resize photo, uploading the original", error);
-    return file;
+    console.error("Could not prepare photo", error);
+    throw new Error("That photo could not be prepared. Try another image.");
   }
 }
 
@@ -43,11 +46,12 @@ export async function uploadPost(input: {
   week: number;
   imageFile: File;
   caption?: string;
-}): Promise<WeeklyPost> {
+}): Promise<{ post: WeeklyPost; rotated: boolean }> {
+  const image = await imageForUpload(input.imageFile);
   const formData = new FormData();
   formData.append("year", input.year.toString());
   formData.append("week", input.week.toString());
-  formData.append("image", await imageForUpload(input.imageFile));
+  formData.append("image", image.file);
   if (input.caption) formData.append("caption", input.caption);
 
   const res = await fetch("/api/posts", {
@@ -60,5 +64,5 @@ export async function uploadPost(input: {
   }
 
   const data = await res.json();
-  return data.post;
+  return { post: data.post, rotated: image.rotated };
 }
